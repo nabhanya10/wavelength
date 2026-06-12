@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wavelength — Taste Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06060c;
+    --bg-soft:#0e0c1c;
+    --surface:rgba(255,255,255,0.045);
+    --surface-strong:rgba(255,255,255,0.085);
+    --border:rgba(255,255,255,0.09);
+    --purple:#8b5cf6;
+    --purple-deep:#4c2885;
+    --blue:#22d3ee;
+    --text:#f5f3fb;
+    --text-dim:#9c93bd;
+    --text-dimmer:#6f6790;
+    --accent-grad:linear-gradient(135deg,#8b5cf6 0%,#22d3ee 100%);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(139,92,246,0.25), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(34,211,238,0.12), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  .shell{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    background:linear-gradient(180deg, rgba(139,92,246,0.06), transparent 220px);
+  }
+  /* ---------- shared bits ---------- */
+  h1,h2,h3,.display{font-family:'Sora',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .muted{color:var(--text-dim);}
+  .glass{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(14px);
+  }
+  .scrollarea{flex:1;overflow-y:auto;padding:20px 20px 110px;}
+  .scrollarea::-webkit-scrollbar{display:none;}
+  button{font-family:'Inter',sans-serif;cursor:pointer;border:none;}
+  input,textarea,select{font-family:'Inter',sans-serif;}
+  .btn-primary{
+    background:var(--accent-grad);
+    color:#0a0612;
+    font-weight:600;
+    padding:14px 20px;
+    border-radius:14px;
+    font-size:15px;
+    width:100%;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .btn-primary:active{transform:scale(0.98);}
+  .btn-primary:disabled{opacity:.35;}
+  .btn-ghost{
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:13px 20px;
+    border-radius:14px;
+    font-size:14px;
+    font-weight:600;
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--surface-strong);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:7px 12px;border-radius:999px;font-size:13px;
+    font-weight:500;
+  }
+  .chip button{background:none;color:var(--text-dimmer);font-size:14px;line-height:1;padding:0;}
+  .chip-input-row{display:flex;gap:8px;margin-top:10px;}
+  .chip-input-row input{
+    flex:1;background:var(--surface);border:1px solid var(--border);
+    color:var(--text);padding:11px 14px;border-radius:12px;font-size:14px;outline:none;
+  }
+  .chip-input-row input:focus{border-color:var(--purple);}
+  .chip-input-row button{
+    background:var(--surface-strong);border:1px solid var(--border);
+    color:var(--text);padding:0 16px;border-radius:12px;font-weight:600;font-size:14px;
+  }
+  .chiplist{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;min-height:20px;}
+  .field-label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dimmer);font-weight:600;margin-bottom:8px;display:block;}
+  .section-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+  .section-sub{font-size:13px;color:var(--text-dim);margin-bottom:18px;line-height:1.5;}
+  /* ---------- onboarding ---------- */
+  .onboard{flex:1;display:flex;flex-direction:column;padding:28px 24px 24px;}
+  .progress-dots{display:flex;gap:6px;margin-bottom:28px;}
+  .progress-dots span{height:4px;flex:1;border-radius:4px;background:var(--surface-strong);}
+  .progress-dots span.active{background:var(--accent-grad);}
+  .onboard-body{flex:1;}
+  .logo-mark{
+    width:46px;height:46px;border-radius:14px;background:var(--accent-grad);
+    display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;
+    font-weight:800;font-size:20px;color:#0a0612;margin-bottom:18px;
+  }
+  .onboard-nav{display:flex;gap:10px;margin-top:24px;}
+  .onboard-nav .btn-ghost{flex:0 0 56px;display:flex;align-items:center;justify-content:center;}
+  .pair-row{display:flex;gap:12px;}
+  .pair-row > div{flex:1;}
+  .text-input, textarea.text-input{
+    width:100%;background:var(--surface);border:1px solid var(--border);
+    color:var(--text);padding:12px 14px;border-radius:12px;font-size:14px;outline:none;
+  }
+  .text-input:focus{border-color:var(--purple);}
+  textarea.text-input{resize:none;min-height:80px;line-height:1.5;}
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 20px 8px;
+  }
+  .topbar .brand{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:17px;}
+  .brand .logo-mark{width:32px;height:32px;font-size:14px;border-radius:10px;margin:0;}
+  /* ---------- bottom nav ---------- */
+  .bottomnav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:430px;
+    display:flex;justify-content:space-around;
+    padding:12px 12px 18px;
+    background:linear-gradient(180deg, transparent, rgba(6,6,12,0.9) 30%);
+    backdrop-filter:blur(6px);
+  }
+  .navbtn{
+    background:none;color:var(--text-dimmer);display:flex;flex-direction:column;
+    align-items:center;gap:4px;font-size:11px;font-weight:600;letter-spacing:.02em;
+    padding:6px 10px;border-radius:12px;transition:color .15s;
+  }
+  .navbtn.active{color:var(--text);background:var(--surface-strong);}
+  .navbtn svg{width:20px;height:20px;}
+  /* ---------- profile ---------- */
+  .profile-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 0 6px;}
+  .avatar{
+    width:84px;height:84px;border-radius:50%;
+    background:var(--accent-grad);display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:30px;color:#0a0612;
+    box-shadow:0 0 0 4px rgba(139,92,246,0.15), 0 0 40px rgba(139,92,246,0.25);
+  }
+  .profile-head h2{font-size:21px;margin-top:14px;}
+  .profile-head .sub{font-size:13px;color:var(--text-dim);margin-top:2px;}
+  .profile-head .bio{font-size:13px;color:var(--text-dim);margin-top:10px;line-height:1.6;max-width:280px;}
+  /* constellation */
+  .constellation{
+    position:relative;width:280px;height:280px;margin:24px auto 6px;
+  }
+  .constellation .center{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:74px;height:74px;border-radius:50%;background:var(--accent-grad);
+    display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;
+    font-weight:800;font-size:26px;color:#0a0612;z-index:3;
+    box-shadow:0 0 50px rgba(139,92,246,0.35);
+  }
+  .constellation .orbit-ring{
+    position:absolute;inset:0;border:1px dashed rgba(255,255,255,0.08);border-radius:50%;
+  }
+  .constellation .orbit-ring.inner{inset:38px;}
+  .constellation .node-layer{
+    position:absolute;inset:0;animation:spin 90s linear infinite;
+  }
+  .constellation .node{
+    position:absolute;transform:translate(-50%,-50%);
+  }
+  .constellation .node-inner{animation:spin-rev 90s linear infinite;}
+  .constellation .node .chip{
+    font-size:11px;padding:6px 10px;white-space:nowrap;
+    box-shadow:0 4px 18px rgba(0,0,0,0.4);
+  }
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes spin-rev{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
+  /* stats grid */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px;}
+  .stat-card{padding:16px;}
+  .stat-card .num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;
+    background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stat-card .lbl{font-size:11px;color:var(--text-dim);margin-top:4px;letter-spacing:.04em;text-transform:uppercase;}
+  /* ai card */
+  .ai-card{padding:18px;margin-top:18px;}
+  .ai-card .tag{
+    display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-bottom:10px;
+  }
+  .ai-card .tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);}
+  .ai-card p{font-size:14px;line-height:1.65;color:var(--text);}
+  .taste-section{margin-top:22px;}
+  .taste-section h3{font-size:14px;font-weight:700;margin-bottom:10px;}
+  /* ---------- diary ---------- */
+  .diary-form{padding:16px;margin-bottom:18px;}
+  .star-row{display:flex;gap:6px;margin-top:6px;}
+  .star-row button{background:none;font-size:24px;color:var(--text-dimmer);transition:color .1s;}
+  .star-row button.on{color:#fbbf24;}
+  .mood-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .mood-pill{
+    background:var(--surface);border:1px solid var(--border);color:var(--text-dim);
+    padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;
+  }
+  .mood-pill.on{background:var(--accent-grad);color:#0a0612;border-color:transparent;}
+  .diary-entry{padding:16px;margin-bottom:12px;}
+  .diary-entry .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .diary-entry .title{font-weight:700;font-size:15px;}
+  .diary-entry .type{font-size:11px;color:var(--text-dimmer);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+  .diary-entry .stars{font-size:13px;color:#fbbf24;white-space:nowrap;}
+  .diary-entry .review{font-size:13.5px;color:var(--text-dim);margin-top:8px;line-height:1.6;}
+  .diary-entry .meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .diary-entry .meta .left{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text-dimmer);}
+  .diary-entry .actions{display:flex;gap:14px;}
+  .diary-entry .actions button{background:none;color:var(--text-dimmer);font-size:12px;display:flex;align-items:center;gap:4px;font-weight:600;}
+  .diary-entry .actions button.liked{color:var(--blue);}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--text-dimmer);font-size:13px;}
+  .empty-state .icon{font-size:34px;margin-bottom:10px;}
+  /* ---------- discover ---------- */
+  .feed-card{padding:16px;margin-bottom:12px;}
+  .feed-card .head{display:flex;align-items:center;gap:10px;}
+  .feed-card .head .mini-avatar{
+    width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:#0a0612;flex:0 0 36px;
+  }
+  .feed-card .head .who{font-size:13.5px;font-weight:700;}
+  .feed-card .head .when{font-size:11px;color:var(--text-dimmer);}
+  .feed-card .body{font-size:13.5px;color:var(--text-dim);margin-top:10px;line-height:1.6;}
+  .feed-card .pill-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .feed-card .pill{background:var(--surface-strong);border:1px solid var(--border);padding:5px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+  .section-chip{
+    display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--text-dimmer);margin:18px 0 10px;
+  }
+  /* ---------- matches ---------- */
+  .match-card{padding:18px;margin-bottom:14px;}
+  .match-card .top{display:flex;gap:14px;align-items:center;}
+  .match-card .top .mini-avatar{
+    width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:#0a0612;flex:0 0 58px;
+  }
+  .match-card .top .info h3{font-size:16px;}
+  .match-card .top .info .loc{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .match-card .top .score{
+    margin-left:auto;text-align:right;
+  }
+  .match-card .top .score .pct{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;
+    background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .match-card .top .score .pctlbl{font-size:10px;color:var(--text-dimmer);text-transform:uppercase;letter-spacing:.06em;}
+  .bar-row{margin-top:14px;}
+  .bar-line{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:5px;}
+  .bar-track{height:6px;border-radius:4px;background:var(--surface-strong);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;background:var(--accent-grad);}
+  .reasons{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+  .reasons .reason{font-size:12.5px;color:var(--text-dim);display:flex;gap:8px;line-height:1.5;}
+  .reasons .reason::before{content:"✦";color:var(--blue);flex:0 0 auto;}
+  .match-actions{display:flex;gap:10px;margin-top:16px;}
+  .match-actions button{flex:1;padding:11px;border-radius:12px;font-weight:600;font-size:13px;}
+  .act-pass{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);}
+  .act-save{background:var(--surface);border:1px solid var(--border);color:var(--blue);}
+  .act-like{background:var(--accent-grad);color:#0a0612;}
+  .act-like.matched{background:var(--surface-strong);color:var(--text-dimmer);}
+  .matched-flag{
+    margin-top:10px;font-size:12px;font-weight:700;color:var(--blue);text-align:center;
+    background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.2);border-radius:10px;padding:8px;
+  }
+  /* ---------- messages ---------- */
+  .convo-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;margin-bottom:8px;}
+  .convo-row:active{background:var(--surface);}
+  .convo-row .mini-avatar{
+    width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:700;font-size:18px;color:#0a0612;flex:0 0 48px;position:relative;
+  }
+  .convo-row .online-dot{position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#34d399;border:2px solid var(--bg);}
+  .convo-row .name{font-size:14.5px;font-weight:700;}
+  .convo-row .preview{font-size:12.5px;color:var(--text-dim);margin-top:2px;}
+  .convo-row .preview .you{color:var(--text-dimmer);}
+  .convo-row .time{margin-left:auto;font-size:11px;color:var(--text-dimmer);}
+  /* chat view */
+  .chat-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);}
+  .chat-header .back{background:none;color:var(--text-dim);font-size:20px;padding:4px;}
+  .chat-header .mini-avatar{
+    width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:#0a0612;
+  }
+  .chat-header .meta{flex:1;}
+  .chat-header .meta .name{font-size:14.5px;font-weight:700;}
+  .chat-header .meta .status{font-size:11px;color:#34d399;}
+  .chat-scroll{flex:1;overflow-y:auto;padding:16px 16px 14px;display:flex;flex-direction:column;gap:10px;}
+  .bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.5;}
+  .bubble.them{background:var(--surface-strong);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;}
+  .bubble.me{background:var(--accent-grad);color:#0a0612;align-self:flex-end;border-bottom-right-radius:4px;font-weight:500;}
+  .bubble.share{display:flex;align-items:center;gap:10px;}
+  .bubble.share .ic{font-size:18px;}
+  .typing-row{display:flex;gap:4px;padding:10px 14px;background:var(--surface-strong);border:1px solid var(--border);border-radius:16px;align-self:flex-start;width:fit-content;border-bottom-left-radius:4px;}
+  .typing-row span{width:6px;height:6px;border-radius:50%;background:var(--text-dimmer);animation:bounce 1.2s infinite;}
+  .typing-row span:nth-child(2){animation-delay:.15s;}
+  .typing-row span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-4px);opacity:1;}}
+  .chat-input-row{display:flex;gap:8px;padding:12px 16px 18px;border-top:1px solid var(--border);align-items:center;}
+  .chat-input-row input{
+    flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);
+    padding:11px 14px;border-radius:999px;font-size:13.5px;outline:none;
+  }
+  .chat-input-row input:focus{border-color:var(--purple);}
+  .icon-btn{
+    width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:16px;flex:0 0 38px;
+  }
+  .send-btn{
+    width:38px;height:38px;border-radius:50%;background:var(--accent-grad);color:#0a0612;
+    display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 38px;
+  }
+  .call-row{display:flex;gap:10px;margin-bottom:14px;}
+  .call-row .icon-btn{flex:0 0 38px;}
+  .quick-row{display:flex;gap:8px;padding:0 16px 10px;flex-wrap:wrap;}
+  .quick-pill{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:600;}
+  .hint{font-size:11.5px;color:var(--text-dimmer);text-align:center;padding:6px 0 2px;}
+</style>
+</head>
+<body>
+<div class="shell" id="app"></div>
+
+<script>
+/* ================= DATA ================= */
+
+const GENRE_SUGGESTIONS = ["Sci-Fi","Drama","Comedy","Thriller","Horror","Romance","Indie","Animation",
+  "Fantasy","Mystery","Indie Rock","Synthwave","Lo-fi","Dream Pop","Hip-Hop","R&B","Electronic","Jazz","Alt Rock","Classical"];
+
+const MOODS = ["Cozy","Hyped","Heartbroken","Nostalgic","Inspired","Chill","Intense"];
+
+const AVATAR_GRADIENTS = [
+  "linear-gradient(135deg,#8b5cf6,#22d3ee)",
+  "linear-gradient(135deg,#f472b6,#8b5cf6)",
+  "linear-gradient(135deg,#22d3ee,#34d399)",
+  "linear-gradient(135deg,#fbbf24,#f472b6)",
+  "linear-gradient(135deg,#60a5fa,#8b5cf6)",
+];
+
+const SAMPLE_USERS = [
+  {
+    id:"maya", name:"Maya", age:26, location:"Bengaluru",
+    bio:"Sci-fi obsessive, vinyl collector, cries at every Pixar movie.",
+    avatar:AVATAR_GRADIENTS[1],
+    movies:["Interstellar","Parasite","La La Land","Spirited Away"],
+    shows:["Dark","Breaking Bad"],
+    artists:["Arctic Monkeys","Tame Impala"],
+    albums:["AM","Currents"],
+    songs:["Do I Wanna Know?","The Less I Know the Better"],
+    genres:["Sci-Fi","Indie Rock","Drama"],
+    lastMsg:"omg you have to hear this album", time:"2m", online:true,
+  },
+  {
+    id:"rohan", name:"Rohan", age:28, location:"Bengaluru",
+    bio:"Loud movies, quiet music. Letterboxd top 4% apparently.",
+    avatar:AVATAR_GRADIENTS[2],
+    movies:["The Dark Knight","Inception","Whiplash","Interstellar"],
+    shows:["Breaking Bad","Mindhunter","Dark"],
+    artists:["Hans Zimmer","The Weeknd"],
+    albums:["After Hours"],
+    songs:["Blinding Lights"],
+    genres:["Thriller","Synthwave","Sci-Fi"],
+    lastMsg:"Whiplash ending still lives in my head", time:"1h", online:true,
+  },
+  {
+    id:"aisha", name:"Aisha", age:24, location:"Mumbai",
+    bio:"Soft films, sad girl playlists, here for the recommendations.",
+    avatar:AVATAR_GRADIENTS[0],
+    movies:["Amélie","La La Will","Spirited Away","La La Land"],
+    shows:["Fleabag","Friends"],
+    artists:["Lana Del Rey","Mac DeMarco"],
+    albums:["Norman F***ing Rockwell"],
+    songs:["Salad Days"],
+    genres:["Romance","Dream Pop","Indie"],
+    lastMsg:"", time:"", online:false,
+  },
+  {
+    id:"dev", name:"Dev", age:27, location:"Pune",
+    bio:"Time travel plots and guitar riffs. Will debate Inception with you for hours.",
+    avatar:AVATAR_GRADIENTS[3],
+    movies:["Interstellar","The Matrix","Spirited Away","Inception"],
+    shows:["Dark","Stranger Things"],
+    artists:["Arctic Monkeys","Radiohead"],
+    albums:["AM","OK Computer"],
+    songs:["505","Karma Police"],
+    genres:["Sci-Fi","Alt Rock","Drama"],
+    lastMsg:"", time:"", online:true,
+  },
+  {
+    id:"priya", name:"Priya", age:25, location:"Bengaluru",
+    bio:"Psychological thrillers + dreamy synths. Always taking diary recs.",
+    avatar:AVATAR_GRADIENTS[4],
+    movies:["Parasite","Get Out","Whiplash"],
+    shows:["Breaking Bad","Dark"],
+    artists:["Tame Impala","Glass Animals"],
+    albums:["Currents","Dreamland"],
+    songs:["Eyes Closed"],
+    genres:["Thriller","Indie","Electronic"],
+    lastMsg:"", time:"", online:false,
+  },
+];
+
+// fix typo in seed data
+SAMPLE_USERS[2].movies[1] = "La La Land";
+
+const FEED_SEED = [
+  { user:"Rohan", avatar:AVATAR_GRADIENTS[2], when:"35m ago",
+    text:"Rewatched Whiplash for the 6th time. The ending still wrecks me every single time — Fletcher and Andrew's dynamic is unmatched.",
+    pills:["Whiplash","★★★★★","Intense"] },
+  { user:"Maya", avatar:AVATAR_GRADIENTS[1], when:"1h ago",
+    text:"Currents by Tame Impala on repeat all week. 'The Less I Know the Better' might be a perfect song honestly.",
+    pills:["Currents","Tame Impala","Cozy"] },
+  { user:"Community", avatar:AVATAR_GRADIENTS[2], when:"Trending",
+    text:"This week's most-logged film on Wavelength: Dark — 1,204 diary entries and counting. Average rating 4.6★.",
+    pills:["Dark","Trending"] },
+  { user:"Dev", avatar:AVATAR_GRADIENTS[3], when:"3h ago",
+    text:"Finished Spirited Away again with my sister — she'd never seen it. Watching someone experience it for the first time hits different.",
+    pills:["Spirited Away","★★★★★","Nostalgic"] },
+  { user:"Community", avatar:AVATAR_GRADIENTS[0], when:"New match",
+    text:"Aisha and Maya just matched at 87% — both rated La La Land 5 stars and both have Indie in their top genres.",
+    pills:["New Match","87%"] },
+];
+
+/* ================= STATE ================= */
+
+const state = {
+  view: "onboarding",
+  step: 1,
+  tab: "profile",
+  activeChat: null,
+  liked: {},      // id -> true
+  passed: {},     // id -> true
+  saved: {},      // id -> true
+  matched: {},    // id -> true
+  chats: {},      // id -> [{from:'me'|'them', text / share}]
+  diary: [],
+  profile: {
+    name:"", username:"", age:"", location:"", bio:"",
+    movies:[], shows:[], artists:[], albums:[], songs:[], genres:[],
+  },
+  draftStar: 0,
+  draftMood: "",
+  diaryType: "Movie",
+};
+
+function initials(name){
+  return (name||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+}
+
+/* ================= ONBOARDING ================= */
+
+function renderOnboarding(){
+  const s = state.step;
+  let body = "";
+  let canNext = true;
+
+  if(s===1){
+    body = `
+      <div class="logo-mark">W</div>
+      <h1 class="section-title">Welcome to Wavelength</h1>
+      <p class="section-sub">Find people through what you watch and listen to — not just a photo. Let's set up your taste profile.</p>
+      <label class="field-label">Your name</label>
+      <input class="text-input" id="f-name" placeholder="e.g. Alex Rao" value="${esc(state.profile.name)}">
+      <div class="pair-row" style="margin-top:14px">
+        <div>
+          <label class="field-label">Username</label>
+          <input class="text-input" id="f-username" placeholder="@handle" value="${esc(state.profile.username)}">
+        </div>
+        <div>
+          <label class="field-label">Age</label>
+          <input class="text-input" id="f-age" placeholder="25" inputmode="numeric" value="${esc(state.profile.age)}">
+        </div>
+      </div>
+      <label class="field-label" style="margin-top:14px">Location</label>
+      <input class="text-input" id="f-location" placeholder="City, Country" value="${esc(state.profile.location)}">
+      <label class="field-label" style="margin-top:14px">Bio</label>
+      <textarea class="text-input" id="f-bio" placeholder="Tell people what you're into...">${esc(state.profile.bio)}</textarea>
+    `;
+  } else if(s===2){
+    body = `
+      <div class="logo-mark">🎬</div>
+      <h1 class="section-title">Movies & Shows</h1>
+      <p class="section-sub">Add the titles that define your taste. These power your matches and your Taste Constellation.</p>
+      ${chipInputBlock("movies","Favorite Movies","e.g. Interstellar")}
+      ${chipInputBlock("shows","Favorite TV Shows","e.g. Dark")}
+    `;
+  } else if(s===3){
+    body = `
+      <div class="logo-mark">🎧</div>
+      <h1 class="section-title">Your Sound</h1>
+      <p class="section-sub">Artists, albums, and songs you keep coming back to.</p>
+      ${chipInputBlock("artists","Favorite Artists","e.g. Arctic Monkeys")}
+      ${chipInputBlock("albums","Favorite Albums","e.g. AM")}
+      ${chipInputBlock("songs","Favorite Songs","e.g. Do I Wanna Know?")}
+    `;
+  } else if(s===4){
+    body = `
+      <div class="logo-mark">✨</div>
+      <h1 class="section-title">Pick your genres</h1>
+      <p class="section-sub">Tap to add. These help us explain why you match with someone.</p>
+      <div class="chiplist" style="margin-top:0">
+        ${GENRE_SUGGESTIONS.map(g=>{
+          const on = state.profile.genres.includes(g);
+          return `<button class="mood-pill ${on?'on':''}" onclick="toggleGenre('${g}')">${g}</button>`;
+        }).join("")}
+      </div>
+      <label class="field-label" style="margin-top:18px">Add your own</label>
+      <div class="chip-input-row">
+        <input id="genre-custom" placeholder="e.g. Bollywood Musicals" onkeydown="if(event.key==='Enter'){addCustomGenre()}">
+        <button onclick="addCustomGenre()">Add</button>
+      </div>
+      <div class="chiplist">
+        ${state.profile.genres.filter(g=>!GENRE_SUGGESTIONS.includes(g)).map(g=>chipHtml(g,"genres")).join("")}
+      </div>
+    `;
+  }
+
+  const dots = [1,2,3,4].map(i=>`<span class="${i<=s?'active':''}"></span>`).join("");
+  const isLast = s===4;
+
+  state.view==="onboarding";
+  return `
+    <div class="onboard">
+      <div class="progress-dots">${dots}</div>
+      <div class="onboard-body">${body}</div>
+      <div class="onboard-nav">
+        ${s>1?`<button class="btn-ghost" onclick="prevStep()">←</button>`:""}
+        <button class="btn-primary" onclick="${isLast?'finishOnboarding()':'nextStep()'}">${isLast?'Enter Wavelength':'Continue'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function chipInputBlock(field, label, placeholder){
+  return `
+    <label class="field-label" style="margin-top:16px">${label}</label>
+    <div class="chip-input-row">
+      <input id="input-${field}" placeholder="${placeholder}" onkeydown="if(event.key==='Enter'){event.preventDefault();addChip('${field}')}">
+      <button onclick="addChip('${field}')">Add</button>
+    </div>
+    <div class="chiplist" id="chips-${field}">
+      ${state.profile[field].map(v=>chipHtml(v,field)).join("")}
+    </div>
+  `;
+}
+
+function chipHtml(value, field){
+  return `<span class="chip">${esc(value)}<button onclick="removeChip('${field}','${esc(value).replace(/'/g,"\\'")}')">✕</button></span>`;
+}
+
+function addChip(field){
+  const input = document.getElementById("input-"+field);
+  const val = input.value.trim();
+  if(!val) return;
+  if(!state.profile[field].includes(val)) state.profile[field].push(val);
+  input.value="";
+  render();
+  // refocus after re-render
+  setTimeout(()=>{ const el=document.getElementById("input-"+field); if(el) el.focus(); },0);
+}
+
+function removeChip(field, value){
+  state.profile[field] = state.profile[field].filter(v=>v!==value);
+  render();
+}
+
+function toggleGenre(g){
+  const i = state.profile.genres.indexOf(g);
+  if(i>-1) state.profile.genres.splice(i,1);
+  else state.profile.genres.push(g);
+  render();
+}
+
+function addCustomGenre(){
+  const input = document.getElementById("genre-custom");
+  const val = input.value.trim();
+  if(!val) return;
+  if(!state.profile.genres.includes(val)) state.profile.genres.push(val);
+  input.value="";
+  render();
+}
+
+function nextStep(){
+  if(state.step===1){
+    state.profile.name = document.getElementById("f-name").value.trim() || "You";
+    state.profile.username = document.getElementById("f-username").value.trim() || "@"+state.profile.name.toLowerCase().replace(/\s+/g,"");
+    state.profile.age = document.getElementById("f-age").value.trim();
+    state.profile.location = document.getElementById("f-location").value.trim();
+    state.profile.bio = document.getElementById("f-bio").value.trim();
+  }
+  state.step++;
+  render();
+}
+function prevStep(){ state.step--; render(); }
+
+function finishOnboarding(){
+  state.view="main";
+  state.tab="profile";
+  render();
+}
+
+/* ================= MAIN APP SHELL ================= */
+
+function renderMain(){
+  let content = "";
+  if(state.tab==="profile") content = renderProfile();
+  else if(state.tab==="diary") content = renderDiary();
+  else if(state.tab==="discover") content = renderDiscover();
+  else if(state.tab==="matches") content = renderMatches();
+  else if(state.tab==="messages") content = state.activeChat ? renderChat(state.activeChat) : renderMessages();
+
+  const isChat = state.tab==="messages" && state.activeChat;
+
+  return `
+    ${isChat ? "" : topbar()}
+    <div class="scrollarea" style="${isChat?'display:flex;flex-direction:column;padding:0;padding-bottom:0;':''}">${content}</div>
+    ${bottomNav()}
+  `;
+}
+
+function topbar(){
+  return `
+    <div class="topbar">
+      <div class="brand"><div class="logo-mark">W</div> Wavelength</div>
+    </div>
+  `;
+}
+
+function bottomNav(){
+  const tabs = [
+    {id:"profile", label:"Profile", icon:iconUser},
+    {id:"diary", label:"Diary", icon:iconBook},
+    {id:"discover", label:"Discover", icon:iconCompass},
+    {id:"matches", label:"Matches", icon:iconSpark},
+    {id:"messages", label:"Chats", icon:iconChat},
+  ];
+  return `
+    <div class="bottomnav">
+      ${tabs.map(t=>`
+        <button class="navbtn ${state.tab===t.id?'active':''}" onclick="goTab('${t.id}')">
+          ${t.icon}
+          <span>${t.label}</span>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function goTab(tab){
+  state.tab = tab;
+  state.activeChat = null;
+  render();
+}
+
+/* simple line icons */
+const iconUser = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>`;
+const iconBook = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v17H6a2 2 0 0 0-2 2V5z"/><path d="M18 17H6"/></svg>`;
+const iconCompass = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M16 8l-2.5 6L8 16l2.5-6L16 8z"/></svg>`;
+const iconSpark = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.8L18 9.6l-4.2 1.8L12 16l-1.8-4.6L6 9.6l4.2-1.8L12 3z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></svg>`;
+const iconChat = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-1.9 5.4A8.5 8.5 0 0 1 12 20a8.38 8.38 0 0 1-4-1L3 20l1-5a8.38 8.38 0 0 1-1-4 8.5 8.5 0 0 1 3.1-6.6A8.38 8.38 0 0 1 11.5 3 8.5 8.5 0 0 1 21 11.5z"/></svg>`;
+
+/* ================= PROFILE TAB ================= */
+
+function renderProfile(){
+  const p = state.profile;
+  const topPicks = [...p.movies.slice(0,3), ...p.artists.slice(0,3)].slice(0,6);
+  const radius = 118;
+  const nodes = topPicks.map((label,i)=>{
+    const angle = (360/topPicks.length)*i - 90;
+    const rad = angle*Math.PI/180;
+    const x = 140 + radius*Math.cos(rad);
+    const y = 140 + radius*Math.sin(rad);
+    return `<div class="node" style="left:${x}px;top:${y}px;"><div class="node-inner"><span class="chip">${esc(label)}</span></div></div>`;
+  }).join("");
+
+  const moviesWatched = state.diary.filter(d=>d.type==="Movie").length;
+  const showsCompleted = state.diary.filter(d=>d.type==="Show").length;
+  const ratings = state.diary.map(d=>d.rating).filter(Boolean);
+  const avgRating = ratings.length ? (ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1) : "—";
+  const topGenre = p.genres[0] || "—";
+
+  return `
+    <div class="profile-head">
+      <div class="avatar">${initials(p.name)}</div>
+      <h2>${esc(p.name)}${p.age?`, ${esc(p.age)}`:""}</h2>
+      <div class="sub">${esc(p.username)}${p.location?` · ${esc(p.location)}`:""}</div>
+      ${p.bio?`<div class="bio">${esc(p.bio)}</div>`:""}
+    </div>
+
+    ${topPicks.length ? `
+    <div class="constellation">
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring inner"></div>
+      <div class="node-layer">${nodes}</div>
+      <div class="center">${initials(p.name)}</div>
+    </div>
+    ` : `
+    <div class="empty-state" style="margin-top:10px">
+      <div class="icon">🌌</div>
+      Add some favorite movies and artists in onboarding to generate your Taste Constellation.
+    </div>
+    `}
+
+    <div class="stats-grid">
+      <div class="glass stat-card"><div class="num">${moviesWatched}</div><div class="lbl">Movies Logged</div></div>
+      <div class="glass stat-card"><div class="num">${showsCompleted}</div><div class="lbl">Shows Logged</div></div>
+      <div class="glass stat-card"><div class="num">${p.artists.length}</div><div class="lbl">Artists Followed</div></div>
+      <div class="glass stat-card"><div class="num">${avgRating}</div><div class="lbl">Avg. Rating</div></div>
+    </div>
+
+    <div class="glass ai-card">
+      <div class="tag">AI Taste Analysis</div>
+      <p>${tasteAnalysis(p)}</p>
+    </div>
+
+    <div class="taste-section">
+      <h3>Top genre</h3>
+      <div class="chiplist" style="margin-top:0"><span class="chip">${esc(topGenre)}</span></div>
+    </div>
+
+    <div class="taste-section">
+      <h3>Favorite Movies</h3>
+      <div class="chiplist" style="margin-top:0">${p.movies.length?p.movies.map(m=>`<span class="chip">${esc(m)}</span>`).join(""):'<span class="muted" style="font-size:13px">None added yet</span>'}</div>
+    </div>
+    <div class="taste-section">
+      <h3>Favorite Shows</h3>
+      <div class="chiplist" style="margin-top:0">${p.shows.length?p.shows.map(m=>`<span class="chip">${esc(m)}</span>`).join(""):'<span class="muted" style="font-size:13px">None added yet</span>'}</div>
+    </div>
+    <div class="taste-section">
+      <h3>Favorite Artists</h3>
+      <div class="chiplist" style="margin-top:0">${p.artists.length?p.artists.map(m=>`<span class="chip">${esc(m)}</span>`).join(""):'<span class="muted" style="font-size:13px">None added yet</span>'}</div>
+    </div>
+    <div class="taste-section">
+      <h3>Albums & Songs</h3>
+      <div class="chiplist" style="margin-top:0">${[...p.albums,...p.songs].length?[...p.albums,...p.songs].map(m=>`<span class="chip">${esc(m)}</span>`).join(""):'<span class="muted" style="font-size:13px">None added yet</span>'}</div>
+    </div>
+    <div class="taste-section">
+      <h3>Genres</h3>
+      <div class="chiplist" style="margin-top:0">${p.genres.length?p.genres.map(m=>`<span class="chip">${esc(m)}</span>`).join(""):'<span class="muted" style="font-size:13px">None selected</span>'}</div>
+    </div>
+  `;
+}
+
+function tasteAnalysis(p){
+  const total = p.movies.length+p.shows.length+p.artists.length+p.albums.length+p.songs.length+p.genres.length;
+  if(total===0){
+    return "Once you add a few favorites, we'll generate a short summary of your taste profile — the kinds of stories and sounds you gravitate toward.";
+  }
+  const genrePart = p.genres.length ? `Your picks lean toward <b>${p.genres.slice(0,3).join(", ")}</b>.` : "";
+  const moviePart = p.movies.length ? ` With films like ${p.movies.slice(0,2).join(" and ")} in your top list, you seem drawn to character-driven, emotionally rich stories.` : "";
+  const musicPart = p.artists.length ? ` On the music side, ${p.artists.slice(0,2).join(" and ")} suggest you're into atmosphere as much as melody.` : "";
+  return `${genrePart}${moviePart}${musicPart}`.trim() || "Add a few more favorites for a deeper read on your taste.";
+}
+
+/* ================= DIARY TAB ================= */
+
+function renderDiary(){
+  return `
+    <div class="section-title">Your Diary</div>
+    <div class="section-sub">Log what you've watched or listened to, rate it, and write a quick review.</div>
+
+    <div class="glass diary-form">
+      <label class="field-label">What did you watch or hear?</label>
+      <input class="text-input" id="diary-title" placeholder="e.g. Interstellar">
+      <div class="pair-row" style="margin-top:12px">
+        <div>
+          <label class="field-label">Type</label>
+          <select class="text-input" id="diary-type">
+            <option ${state.diaryType==="Movie"?"selected":""}>Movie</option>
+            <option ${state.diaryType==="Show"?"selected":""}>Show</option>
+            <option ${state.diaryType==="Song"?"selected":""}>Song</option>
+            <option ${state.diaryType==="Album"?"selected":""}>Album</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Date</label>
+          <input class="text-input" id="diary-date" type="date" value="${new Date().toISOString().slice(0,10)}">
+        </div>
+      </div>
+      <label class="field-label" style="margin-top:12px">Rating</label>
+      <div class="star-row">
+        ${[1,2,3,4,5].map(n=>`<button class="${n<=state.draftStar?'on':''}" onclick="setStar(${n})">★</button>`).join("")}
+      </div>
+      <label class="field-label" style="margin-top:12px">Mood</label>
+      <div class="mood-row">
+        ${MOODS.map(m=>`<button class="mood-pill ${state.draftMood===m?'on':''}" onclick="setMood('${m}')">${m}</button>`).join("")}
+      </div>
+      <label class="field-label" style="margin-top:12px">Review</label>
+      <textarea class="text-input" id="diary-review" placeholder="What did you think?"></textarea>
+      <button class="btn-primary" style="margin-top:14px" onclick="addDiaryEntry()">Add to Diary</button>
+    </div>
+
+    ${state.diary.length===0 ? `
+      <div class="empty-state">
+        <div class="icon">📓</div>
+        Your diary is empty. Log your first movie, show, or song above.
+      </div>
+    ` : state.diary.map((e,idx)=>`
+      <div class="glass diary-entry">
+        <div class="row1">
+          <div>
+            <div class="title">${esc(e.title)}</div>
+            <div class="type">${e.type}${e.mood?` · ${e.mood}`:""}</div>
+          </div>
+          <div class="stars">${"★".repeat(e.rating)}${"☆".repeat(5-e.rating)}</div>
+        </div>
+        ${e.review?`<div class="review">${esc(e.review)}</div>`:""}
+        <div class="meta">
+          <div class="left">${formatDate(e.date)}</div>
+          <div class="actions">
+            <button class="${e.liked?'liked':''}" onclick="toggleDiaryLike(${idx})">♥ ${e.likes}</button>
+            <button onclick="toggleDiarySave(${idx})">${e.saved?'✓ Saved':'Save'}</button>
+            <button onclick="shareDiary(${idx})">Share</button>
+          </div>
+        </div>
+      </div>
+    `).join("")}
+  `;
+}
+
+function setStar(n){ state.draftStar = (state.draftStar===n)?n:n; render(); }
+function setMood(m){ state.draftMood = (state.draftMood===m)?"":m; render(); }
+
+function addDiaryEntry(){
+  const title = document.getElementById("diary-title").value.trim();
+  const type = document.getElementById("diary-type").value;
+  const date = document.getElementById("diary-date").value;
+  const review = document.getElementById("diary-review").value.trim();
+  if(!title){ flashRequired("diary-title"); return; }
+  if(state.draftStar===0){ return; }
+  state.diary.unshift({
+    title, type, date: date || new Date().toISOString().slice(0,10),
+    rating: state.draftStar, mood: state.draftMood, review,
+    likes: 0, liked:false, saved:false,
+  });
+  state.diaryType = type;
+  state.draftStar = 0;
+  state.draftMood = "";
+  render();
+}
+
+function flashRequired(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.borderColor = "#f87171";
+  setTimeout(()=>{ el.style.borderColor=""; },800);
+}
+
+function toggleDiaryLike(idx){
+  const e = state.diary[idx];
+  e.liked = !e.liked;
+  e.likes += e.liked ? 1 : -1;
+  render();
+}
+function toggleDiarySave(idx){ state.diary[idx].saved = !state.diary[idx].saved; render(); }
+function shareDiary(idx){
+  // mock share: opens matches tab as a hint of where shares would go
+  alert("Shared to your matches' chats (demo).");
+}
+
+function formatDate(d){
+  const dt = new Date(d+"T00:00:00");
+  return dt.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+}
+
+/* ================= DISCOVER TAB ================= */
+
+function renderDiscover(){
+  const userEntries = state.diary.slice(0,3).map(e=>({
+    user: state.profile.name || "You",
+    avatar: AVATAR_GRADIENTS[0],
+    when: "Just now",
+    text: e.review || `Logged ${e.title} — rated ${e.rating}★${e.mood?` (feeling ${e.mood})`:""}.`,
+    pills: [e.title, "★".repeat(e.rating), e.mood].filter(Boolean),
+  }));
+  const feed = [...userEntries, ...FEED_SEED];
+
+  return `
+    <div class="section-title">Discover</div>
+    <div class="section-sub">Recent reviews, diary entries, and what's resonating across Wavelength right now.</div>
+    ${feed.map(f=>`
+      <div class="glass feed-card">
+        <div class="head">
+          <div class="mini-avatar" style="background:${f.avatar}">${initials(f.user)}</div>
+          <div>
+            <div class="who">${esc(f.user)}</div>
+            <div class="when">${esc(f.when)}</div>
+          </div>
+        </div>
+        <div class="body">${esc(f.text)}</div>
+        <div class="pill-row">${f.pills.map(p=>`<span class="pill">${esc(p)}</span>`).join("")}</div>
+      </div>
+    `).join("")}
+  `;
+}
+
+/* ================= MATCHES TAB ================= */
+
+function jaccard(a,b){
+  if(a.length===0 && b.length===0) return null;
+  const setA = new Set(a.map(s=>s.toLowerCase()));
+  const setB = new Set(b.map(s=>s.toLowerCase()));
+  const inter = [...setA].filter(x=>setB.has(x));
+  const union = new Set([...setA,...setB]);
+  return { score: union.size ? inter.length/union.size : 0, overlap: inter };
+}
+
+function computeCompat(p, other){
+  const movie = jaccard(p.movies, other.movies);
+  const show = jaccard(p.shows, other.shows);
+  const artist = jaccard(p.artists, other.artists);
+  const album = jaccard([...p.albums,...p.songs], [...other.albums,...other.songs]);
+  const genre = jaccard(p.genres, other.genres);
+
+  const musicParts = [artist, album, genre].filter(Boolean);
+  const musicScore = musicParts.length ? musicParts.reduce((a,b)=>a+b.score,0)/musicParts.length : 0;
+  const movieScore = movie ? movie.score : 0;
+  const showScore = show ? show.score : 0;
+
+  const weights = [];
+  if(movie) weights.push([movieScore,0.35]);
+  if(show) weights.push([showScore,0.2]);
+  if(musicParts.length) weights.push([musicScore,0.45]);
+
+  let overall;
+  if(weights.length===0) overall = 0;
+  else {
+    const wsum = weights.reduce((a,w)=>a+w[1],0);
+    overall = weights.reduce((a,w)=>a+w[0]*w[1],0)/wsum;
+  }
+  overall = Math.round(overall*100);
+  // add a gentle baseline lift so percentages feel less stark, capped at 96
+  overall = Math.min(96, overall + (overall>0 ? 8 : 0));
+
+  const reasons = [];
+  if(movie && movie.overlap.length){
+    reasons.push(`You both rated <b>${cap(movie.overlap[0])}</b> highly.`);
+  }
+  if(artist && artist.overlap.length){
+    reasons.push(`You both love <b>${cap(artist.overlap[0])}</b>.`);
+  }
+  if(show && show.overlap.length){
+    reasons.push(`You've both watched <b>${cap(show.overlap[0])}</b>.`);
+  }
+  if(genre && genre.overlap.length && reasons.length<3){
+    reasons.push(`You both gravitate toward <b>${cap(genre.overlap[0])}</b>.`);
+  }
+  if(reasons.length===0){
+    reasons.push(`Add more favorites to unlock specific reasons you might connect.`);
+  }
+
+  return {
+    overall,
+    music: Math.round(musicScore*100),
+    movies: Math.round(movieScore*100),
+    shows: Math.round(showScore*100),
+    reasons: reasons.slice(0,3),
+  };
+}
+
+function cap(s){
+  return s.replace(/\b\w/g, c=>c.toUpperCase());
+}
+
+function renderMatches(){
+  const p = state.profile;
+  const totalFavs = p.movies.length+p.shows.length+p.artists.length+p.albums.length+p.songs.length+p.genres.length;
+
+  const candidates = SAMPLE_USERS
+    .filter(u=>!state.passed[u.id])
+    .map(u=>({ user:u, compat: computeCompat(p,u) }))
+    .sort((a,b)=>b.compat.overall-a.compat.overall);
+
+  return `
+    <div class="section-title">Matches</div>
+    <div class="section-sub">${totalFavs<3
+      ? "Add a few more favorites to your profile for sharper matches — here's a preview based on what you've shared so far."
+      : "Ranked by overall taste compatibility, based on your diary and favorites."}</div>
+    ${candidates.length===0 ? `
+      <div class="empty-state"><div class="icon">🤝</div>You've gone through everyone for now. Check back later for new matches.</div>
+    ` : candidates.map(c=>{
+      const u = c.user; const m = c.compat;
+      const isMatched = !!state.matched[u.id];
+      const isSaved = !!state.saved[u.id];
+      return `
+      <div class="glass match-card">
+        <div class="top">
+          <div class="mini-avatar" style="background:${u.avatar}">${initials(u.name)}</div>
+          <div class="info">
+            <h3>${esc(u.name)}, ${u.age}</h3>
+            <div class="loc">${esc(u.location)}</div>
+          </div>
+          <div class="score">
+            <div class="pct">${m.overall}%</div>
+            <div class="pctlbl">Overall</div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-line"><span>Music Match</span><span class="mono">${m.music}%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${m.music}%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-line"><span>Movie Match</span><span class="mono">${m.movies}%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${m.movies}%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-line"><span>Show Match</span><span class="mono">${m.shows}%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${m.shows}%"></div></div>
+        </div>
+        <div class="reasons">
+          ${m.reasons.map(r=>`<div class="reason">${r}</div>`).join("")}
+        </div>
+        <div class="match-actions">
+          <button class="act-pass" onclick="passUser('${u.id}')">Pass</button>
+          <button class="act-save" onclick="saveUser('${u.id}')">${isSaved?'Saved ✓':'Save'}</button>
+          <button class="act-like ${isMatched?'matched':''}" onclick="likeUser('${u.id}')">${isMatched?'Matched ✓':'Like'}</button>
+        </div>
+        ${isMatched?`<div class="matched-flag">It's a match! Say hi in Chats.</div>`:""}
+      </div>
+    `}).join("")}
+  `;
+}
+
+function passUser(id){ state.passed[id]=true; render(); }
+function saveUser(id){ state.saved[id]=!state.saved[id]; render(); }
+function likeUser(id){
+  if(state.matched[id]) return;
+  state.matched[id]=true;
+  if(!state.chats[id]){
+    const u = SAMPLE_USERS.find(x=>x.id===id);
+    state.chats[id] = [
+      { from:"them", text:`Hey ${state.profile.name||"there"}! Just matched — saw we both love ${u.movies[0]||u.artists[0]||"good stuff"}. What got you into it?` }
+    ];
+    u.lastMsg = "Hey! Just matched — what got you into it?";
+    u.time = "now";
+  }
+  render();
+}
+
+/* ================= MESSAGES TAB ================= */
+
+function renderMessages(){
+  const matchedUsers = SAMPLE_USERS.filter(u=>state.matched[u.id]);
+  return `
+    <div class="section-title">Chats</div>
+    <div class="section-sub">Conversations with people you've matched with.</div>
+    ${matchedUsers.length===0 ? `
+      <div class="empty-state"><div class="icon">💬</div>No matches yet. Head to the Matches tab and like someone to start a chat.</div>
+    ` : matchedUsers.map(u=>{
+      const msgs = state.chats[u.id]||[];
+      const last = msgs[msgs.length-1];
+      const preview = last ? (last.from==="me"? `<span class="you">You: </span>`:"") + (last.text||(last.share?`Shared: ${last.share.title}`:"")) : "Say hi 👋";
+      return `
+      <div class="convo-row" onclick="openChat('${u.id}')">
+        <div class="mini-avatar" style="background:${u.avatar}">${initials(u.name)}${u.online?'<span class="online-dot"></span>':''}</div>
+        <div style="flex:1;min-width:0">
+          <div class="name">${esc(u.name)}</div>
+          <div class="preview" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${preview}</div>
+        </div>
+        <div class="time">${u.time||"now"}</div>
+      </div>
+    `}).join("")}
+  `;
+}
+
+function openChat(id){ state.activeChat = id; render(); scrollChatToEnd(); }
+function closeChat(){ state.activeChat = null; render(); }
+
+function renderChat(id){
+  const u = SAMPLE_USERS.find(x=>x.id===id);
+  const msgs = state.chats[id]||[];
+  return `
+    <div class="chat-header">
+      <button class="back" onclick="closeChat()">←</button>
+      <div class="mini-avatar" style="background:${u.avatar}">${initials(u.name)}</div>
+      <div class="meta">
+        <div class="name">${esc(u.name)}</div>
+        <div class="status">${u.online?'Online':'Offline'}</div>
+      </div>
+      <div class="call-row">
+        <button class="icon-btn" title="Voice call" onclick="mockCall('voice','${id}')">📞</button>
+        <button class="icon-btn" title="Video call" onclick="mockCall('video','${id}')">📹</button>
+      </div>
+    </div>
+    <div class="chat-scroll" id="chat-scroll">
+      ${msgs.map(m=>renderBubble(m)).join("")}
+      ${state.typingFor===id?`<div class="typing-row"><span></span><span></span><span></span></div>`:""}
+    </div>
+    <div class="quick-row">
+      <button class="quick-pill" onclick="shareToChat('${id}','movie')">🎬 Share a movie</button>
+      <button class="quick-pill" onclick="shareToChat('${id}','song')">🎵 Share a song</button>
+      <button class="quick-pill" onclick="shareToChat('${id}','review')">📝 Share a review</button>
+    </div>
+    <div class="chat-input-row">
+      <button class="icon-btn" title="Voice note" onclick="sendVoiceNote('${id}')">🎙️</button>
+      <input id="chat-input" placeholder="Message ${esc(u.name)}..." onkeydown="if(event.key==='Enter'){sendChat('${id}')}">
+      <button class="send-btn" onclick="sendChat('${id}')">➤</button>
+    </div>
+    <div class="hint">This is a demo conversation — replies are simulated.</div>
+  `;
+}
+
+function renderBubble(m){
+  if(m.share){
+    const icons = {movie:"🎬", song:"🎵", review:"📝"};
+    return `<div class="bubble ${m.from==='me'?'me':'them'} share"><span class="ic">${icons[m.share.kind]||"🔗"}</span><div><b>${esc(m.share.title)}</b><br><span style="opacity:.75;font-size:11.5px">${esc(m.share.subtitle)}</span></div></div>`;
+  }
+  return `<div class="bubble ${m.from==='me'?'me':'them'}">${esc(m.text)}</div>`;
+}
+
+function scrollChatToEnd(){
+  setTimeout(()=>{
+    const el = document.getElementById("chat-scroll");
+    if(el) el.scrollTop = el.scrollHeight;
+  },30);
+}
+
+function sendChat(id){
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if(!text) return;
+  state.chats[id].push({from:"me", text});
+  input.value="";
+  render();
+  scrollChatToEnd();
+  simulateReply(id);
+}
+
+function simulateReply(id){
+  state.typingFor = id;
+  render();
+  scrollChatToEnd();
+  const replies = [
+    "Haha exactly, that's such a good take.",
+    "Okay adding that to my list right now.",
+    "Wait we have to talk about the ending though.",
+    "100%. We should do a watch party for that soon.",
+    "Same! It's been on repeat for me too.",
+  ];
+  setTimeout(()=>{
+    state.typingFor = null;
+    state.chats[id].push({from:"them", text: replies[Math.floor(Math.random()*replies.length)]});
+    render();
+    scrollChatToEnd();
+  }, 1400);
+}
+
+function shareToChat(id, kind){
+  const u = SAMPLE_USERS.find(x=>x.id===id);
+  const p = state.profile;
+  let title, subtitle;
+  if(kind==="movie"){
+    title = p.movies[0] || "Interstellar";
+    subtitle = "Shared from your favorites";
+  } else if(kind==="song"){
+    title = p.songs[0] || p.artists[0] || "Currents";
+    subtitle = "Shared from your favorites";
+  } else {
+    const entry = state.diary[0];
+    title = entry ? entry.title : "No reviews yet";
+    subtitle = entry ? `${"★".repeat(entry.rating)} — your review` : "Log something in your Diary first";
+  }
+  state.chats[id].push({from:"me", share:{kind, title, subtitle}});
+  render();
+  scrollChatToEnd();
+  simulateReply(id);
+}
+
+function sendVoiceNote(id){
+  state.chats[id].push({from:"me", share:{kind:"review", title:"Voice note (0:08)", subtitle:"Tap to play — demo only"}});
+  render();
+  scrollChatToEnd();
+}
+
+function mockCall(type, id){
+  const u = SAMPLE_USERS.find(x=>x.id===id);
+  alert(`${type==='voice'?'Voice':'Video'} call with ${u.name} would start here (demo — needs Agora SDK integration).`);
+}
+
+/* ================= UTIL ================= */
+
+function esc(str){
+  return String(str ?? "").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+/* ================= RENDER ROOT ================= */
+
+function render(){
+  const app = document.getElementById("app");
+  app.innerHTML = state.view==="onboarding" ? renderOnboarding() : renderMain();
+}
+
+render();
+</script>
+</body>
+</html>
